@@ -99,8 +99,7 @@ while ischar(tline)
         H_l = [ -(l_y - x(2))/d_rl, (l_x - x(1))/d_rl;
                 (l_x - x(1))/d_rl, (l_y - x(2))/d_rl];
 
-        K_pos = P_pre(1:3, 1:3) * H_p'/ (H_p * P_pre(1:3, 1:3) * H_p' + measure_cov);
-        
+        K_pos = P_pre(1:3, 1:3) * H_p'/ (H_p * PP(3+i_l:3+i_l+1, 3+i_l:3+i_l+1);
         K_l = P_pre(3+i_l:3+i_l+1, 3+i_l:3+i_l+1) * H_l' / ...
                                 ( H_l * P_pre(3+i_l:3+i_l+1, 3+i_l:3+i_l+1)*H_l' + measure_cov);
         
