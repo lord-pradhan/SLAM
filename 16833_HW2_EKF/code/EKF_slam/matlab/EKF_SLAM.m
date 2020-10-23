@@ -8,11 +8,11 @@ close all;
 clc;
 
 %==== TEST: Setup uncertainity parameters (try different values!) ===
-sig_x = 0.25;
-sig_y = 0.1;
-sig_alpha = 0.1;
+sig_x = 0.5;
+sig_y = 0.3;
+sig_alpha = 0.3;
 sig_beta = 0.15;
-sig_r = 0.5;
+sig_r = 0.6;
 
 %==== Generate sigma^2 from sigma ===
 sig_x2 = sig_x^2;
@@ -36,7 +36,7 @@ measure_cov = diag([sig_beta2, sig_r2]);
 
 %==== Setup initial pose vector and pose uncertainty ====
 pose = [0 ; 0 ; 0];
-pose_cov = diag([0.2^2, 0.2^2, 0.5^2]);
+pose_cov = diag([0.02^2, 0.02^2, 0.1^2]);
 
 %==== TODO: Setup initial landmark vector landmark[] and covariance matrix landmark_cov[] ====
 %==== (Hint: use initial pose with uncertainty and first measurement) ====
@@ -47,8 +47,8 @@ k=6;
 landmark = zeros(2*k, 1);
 landmark_cov=[];
 for i=1:k
-    r_l = measure(2*(i-1)+1);
-    beta_l = measure(2*(i-1)+2);
+    beta_l = measure(2*(i-1)+1);
+    r_l = measure(2*(i-1)+2);
     landmark(2*(i-1)+1 : 2*i , 1) = [pose(1) + r_l*cos(beta_l + pose(3)); 
                                     pose(2) + r_l*sin(beta_l + pose(3))];
     
@@ -85,7 +85,7 @@ while ischar(tline)
 
     %==== Draw predicted state x_pre[] and covariance P_pre[] ====
     drawTrajPre(x_pre, P_pre);
-    pause(1)
+    pause(.1)
 
     %==== Read measurement data ====
     tline = fgets(fid);
@@ -127,7 +127,7 @@ while ischar(tline)
     
     drawTrajAndMap(x, last_x, P, t);
     last_x = x;
-    pause(1)
+    pause(.1)
 
     %==== Iteration & read next control data ===
     t = t + 1;
