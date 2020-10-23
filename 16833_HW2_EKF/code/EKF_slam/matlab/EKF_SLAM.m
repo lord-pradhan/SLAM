@@ -11,8 +11,8 @@ clc;
 sig_x = 0.5;
 sig_y = 0.3;
 sig_alpha = 0.3;
-sig_beta = 0.15;
-sig_r = 0.6;
+sig_beta = 0.35;
+sig_r = 1.0;
 
 %==== Generate sigma^2 from sigma ===
 sig_x2 = sig_x^2;
