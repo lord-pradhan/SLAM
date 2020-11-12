@@ -8,11 +8,24 @@ close all;
 clc;
 
 %==== TEST: Setup uncertainity parameters (try different values!) ===
-sig_x = 0.5;
-sig_y = 0.3;
-sig_alpha = 0.3;
+% sig_x = 0.25;
+% sig_y = 0.1;
+% sig_alpha = 0.1;
+% sig_beta = 0.01;
+% sig_r = 0.08;
+% % 
+% sig_x = 0.5;
+% sig_y = 0.3;
+% sig_alpha = 0.3;
+% sig_beta = 0.35;
+% sig_r = 1.0;
+
+sig_x = 2;
+sig_y = 1;
+sig_alpha = 1;
 sig_beta = 0.35;
 sig_r = 1.0;
+
 
 %==== Generate sigma^2 from sigma ===
 sig_x2 = sig_x^2;
@@ -43,6 +56,10 @@ pose_cov = diag([0.02^2, 0.02^2, 0.1^2]);
 
 % Write your code here...
 k=6;
+l = [3,3,7,7,11,11; 
+    6,12,8,14,6,12];
+euclid =[];
+maha = [];
 
 landmark = zeros(2*k, 1);
 landmark_cov=[];
@@ -85,7 +102,7 @@ while ischar(tline)
 
     %==== Draw predicted state x_pre[] and covariance P_pre[] ====
     drawTrajPre(x_pre, P_pre);
-    pause(.1)
+    pause(.01)
 
     %==== Read measurement data ====
     tline = fgets(fid);
@@ -100,20 +117,20 @@ while ischar(tline)
         
         l_x = x(3 + i_l);
         l_y = x(3 + i_l + 1);
-        d_rl = sqrt((l_x - x(1))^2 + (l_y - x(2))^2);
+        d_rl = (l_x - x(1))^2 + (l_y - x(2))^2;
         
         H_p = [(l_y - x(2))/d_rl, -(l_x - x(1))/d_rl, -1;
-                -(l_x - x(1))/d_rl, -(l_y - x(2))/d_rl, 0];
+                -(l_x - x(1))/sqrt(d_rl), -(l_y - x(2))/sqrt(d_rl), 0];
             
         H_l = [ -(l_y - x(2))/d_rl, (l_x - x(1))/d_rl;
-                (l_x - x(1))/d_rl, (l_y - x(2))/d_rl];
+                (l_x - x(1))/sqrt(d_rl), (l_y - x(2))/sqrt(d_rl)];
 
         K_pos = P_pre(1:3, 1:3) * H_p'/ (H_p * P_pre(1:3, 1:3) * H_p' + measure_cov);
         
         K_l = P_pre(3+i_l:3+i_l+1, 3+i_l:3+i_l+1) * H_l' / ...
                                 ( H_l * P_pre(3+i_l:3+i_l+1, 3+i_l:3+i_l+1)*H_l' + measure_cov);
         
-        meas_pred = [wrapToPi( atan2(l_y - x(2), l_x - x(1)) - x(3) ); d_rl];
+        meas_pred = [wrapToPi( atan2(l_y - x(2), l_x - x(1)) - x(3) ); sqrt(d_rl)];
         
         x(1:3) = x_pre(1:3) + K_pos * ( [arr(i_l); arr(i_l+1)] -  meas_pred );
         x(3+i_l:3+i_l+1) = x_pre(3+i_l:3+i_l+1) + K_l * ( [arr(i_l); arr(i_l+1)] -  meas_pred );
@@ -123,22 +140,43 @@ while ischar(tline)
         
 %         drawTrajAndMap(x, last_x, P, t);
     end
-    %==== Plot ====
-    
+    %==== Plot ====    
     drawTrajAndMap(x, last_x, P, t);
     last_x = x;
     pause(.1)
-
+    
+    %== Distance stats ==
+%     euclid_temp = zeros(1,k); maha_temp = zeros(1,k);
+%     for i = 1:k
+% %         beta_l = measure(2*(i-1)+1);
+% %         r_l = measure(2*(i-1)+2);
+%         
+%         euclid_temp(1,i) = sqrt( ( x(3+2*(i-1)+1) - l(1,i) )^2 + ( x(3+2*(i-1)+2) - l(2,i) )^2 );
+%         maha_temp(1,i) = sqrt( ([x(3+2*(i-1)+1) ;x(3+2*(i-1)+2) ] - l(:,i))' / ...
+%                                 P(3+2*(i-1)+1:3+2*(i-1)+2, 3+2*(i-1)+1:3+2*(i-1)+2 ) ...
+%                                 * ([x(3+2*(i-1)+1) ;x(3+2*(i-1)+2) ] - l(:,i)) );
+%     end
+    
+%     euclid = [euclid; euclid_temp];
+%     maha = [maha; maha_temp];
+%     
     %==== Iteration & read next control data ===
     t = t + 1;
     tline = fgets(fid);    
 end
 
+for i = 1:k
+    
+    euclid(1,i) = sqrt( ( x(3+2*(i-1)+1) - l(1,i) )^2 + ( x(3+2*(i-1)+2) - l(2,i) )^2 );
+    maha(1,i) = sqrt( ([x(3+2*(i-1)+1) ;x(3+2*(i-1)+2) ] - l(:,i))' / ...
+                            P(3+2*(i-1)+1:3+2*(i-1)+2, 3+2*(i-1)+1:3+2*(i-1)+2 ) ...
+                            * ([x(3+2*(i-1)+1) ;x(3+2*(i-1)+2) ] - l(:,i)) );
+end
+
 %==== EVAL: Plot ground truth landmarks ====
 
 % Write your code here...
-l = [3,3,7,7,11,11; 
-    6,12,8,14,6,12];
+
 hold on
 plot(l(1,:), l(2,:), 'k*')
 
