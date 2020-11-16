@@ -58,7 +58,7 @@ b = zeros(M, 1);
 J_o = [-1,0,1,0; 0,-1,0,1];
 J_l = [-1,0,1,0; 0,-1,0,1];
 
-A(1:p_dim, 1:p_dim) = eye(p_dim)/1e-5;
+A(1:p_dim, 1:p_dim) = eye(p_dim)/1e-6;
 b(1:p_dim,1) = 0;
 % sigmainv_o = inv(sigma_o);
 % sigmainv_l = inv(sigma_l);

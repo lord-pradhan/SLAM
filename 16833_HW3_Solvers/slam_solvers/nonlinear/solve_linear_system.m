@@ -15,6 +15,9 @@ function x = solve_linear_system(A, b)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%% Your code goes here %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% [Q,R,E] = qr(A, 0);
-% x = back_sub(R, Q'*b);
-x = inv(A'*A)*A'*b;
+P = colamd(A);
+A_perm = A(:,P);
+[R, flag] = chol( A(:,P)'*A(:,P) );
+y = forward_sub(R', A(:,P)'*b);
+x = back_sub(R,y);
+x(P) = x;

@@ -15,8 +15,8 @@ function slam_2D_linear(method)
 close all; clc; 
 addpath('../util');
 
-load('../../data/2D_linear.mat');
-% load('../../data/2D_linear_loop.mat');
+% load('../../data/2D_linear.mat');
+load('../../data/2D_linear_loop.mat');
 
 if nargin < 1
     method = 'all';
@@ -114,7 +114,7 @@ elseif strcmp(method, 'qr2')
     evaluate_method('QR2', traj, landmarks, odom, gt_traj, gt_landmarks, true);
     
 elseif strcmp(method, 'lsqr')
-    [x, ~] = lsqr(A, b, 1e-6, 30, [], [], zeros(N,1));
+    [x, ~] = lsqr(A, b, 1e-6, 200, [], [], zeros(N,1));
     [traj, landmarks] = format_solution(x, n_poses, n_landmarks, o_dim, m_dim);
     evaluate_method('LSQR', traj, landmarks, odom, gt_traj, gt_landmarks, true);
     

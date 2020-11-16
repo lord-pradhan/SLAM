@@ -18,6 +18,7 @@ function [x, R] = solve_qr1(A, b)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % economy
-[Q,R,E] = qr(A, 0);
-x = back_sub(R, Q'*b);
+[C,R] = qr(A,b,0);
+x = back_sub(R, C);
+% x = R\C;
 end

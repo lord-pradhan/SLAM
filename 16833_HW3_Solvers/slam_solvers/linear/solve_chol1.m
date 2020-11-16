@@ -17,6 +17,6 @@ function [x, R] = solve_chol1(A, b)
 %%%%%%%%%%%%%%%%%%%%% Your code goes here %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 R = chol(A'*A);
-y = back_sub(R', A'*b);
-x = forward_sub(R,y);
+y = forward_sub(R', A'*b);
+x = back_sub(R,y);
 end

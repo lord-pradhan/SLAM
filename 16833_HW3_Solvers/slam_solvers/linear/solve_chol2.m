@@ -16,7 +16,10 @@ function [x, R] = solve_chol2(A, b)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%% Your code goes here %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[R, flag, P] = chol(A'*A);
-y = back_sub(R', A'*b);
-x = forward_sub(R,y);
+P = colamd(A);
+A_perm = A(:,P);
+[R, flag] = chol( A(:,P)'*A(:,P) );
+y = forward_sub(R', A(:,P)'*b);
+x = back_sub(R,y);
+x(P) = x;
 end
