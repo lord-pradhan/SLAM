@@ -57,15 +57,16 @@ b = zeros(M, 1);
 % prior
 J_o = [-1,0,1,0; 0,-1,0,1];
 J_l = [-1,0,1,0; 0,-1,0,1];
-A(1:p_dim, 1:p_dim) = eye(p_dim);
+
+A(1:p_dim, 1:p_dim) = eye(p_dim)/1e-5;
 b(1:p_dim,1) = 0;
 % sigmainv_o = inv(sigma_o);
 % sigmainv_l = inv(sigma_l);
 
 % add odom jacobian
 for i = 1:n_odom
-    A( p_dim + o_dim*i-1 : p_dim + o_dim*(i+1)-2, p_dim*i-1 : p_dim*(i+2)-2 ) = sigma_o \ J_o; 
-    b( p_dim + o_dim*i-1 : p_dim + o_dim*(i+1)-2, 1 ) = sigma_o \ odom(i,:)' ;
+    A( p_dim + o_dim*i-1 : p_dim + o_dim*(i+1)-2, p_dim*i-1 : p_dim*(i+2)-2 ) = sigma_o.^(0.5) \ J_o; 
+    b( p_dim + o_dim*i-1 : p_dim + o_dim*(i+1)-2, 1 ) = sigma_o.^(0.5) \ odom(i,:)' ;
 end
 
 % add landmark jacobian
@@ -76,12 +77,12 @@ for i = 1:n_obs
     i_lm = obs(i,2);
     
     A(odomEnd + o_dim*i-1 : odomEnd + o_dim*(i+1)-2,...
-        p_dim*i_pose-1 : p_dim*(i_pose+1)-2) = sigma_l \ J_l(:,1:2);
+        p_dim*i_pose-1 : p_dim*(i_pose+1)-2) = sigma_l.^(0.5) \ J_l(:,1:2);
     
     A(odomEnd + o_dim*i-1 : odomEnd + o_dim*(i+1)-2,...
-        poseEnd + p_dim*i_lm-1 : poseEnd + p_dim*(i_lm+1)-2) = sigma_l \ J_l(:, 3:4);
+        poseEnd + l_dim*i_lm-1 : poseEnd + l_dim*(i_lm+1)-2) = sigma_l.^(0.5) \ J_l(:, 3:4);
     
-    b(odomEnd + o_dim*i-1 : odomEnd + o_dim*(i+1)-2, 1) = sigma_l \ obs(i, 3:4)';
+    b(odomEnd + o_dim*i-1 : odomEnd + o_dim*(i+1)-2, 1) = sigma_l.^(0.5) \ obs(i, 3:4)';
 end
 %% Make A a sparse matrix 
 As = sparse(A);
