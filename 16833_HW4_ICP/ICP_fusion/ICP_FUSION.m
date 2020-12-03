@@ -19,7 +19,7 @@ end
 %==== TEST: Debug ICP or point-based fusion (0: false, 1: true)====
 is_debug_icp = 0;
 is_debug_fusion = 1;
-is_eval = 1;
+is_eval = 0;
 
 %==== Set start time ====
 tic;
@@ -113,6 +113,7 @@ end
 
 %==== Plot output 3D fusion map ====
 plotTrajAndMap(positions, fusion_map);
+
 
 %==== EVAL: Visualize normals, ccounts, and times ====
 plotEvalMaps(fusion_map, is_eval);

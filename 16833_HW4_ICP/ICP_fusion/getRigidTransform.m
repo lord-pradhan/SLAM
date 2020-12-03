@@ -24,9 +24,9 @@ function [tform valid_pair_num error] = getRigidTransform(new_pointcloud, ref_po
         b = zeros(m*n, 1);
         
         %==== declare the number of point pairs that are used in this iteration ==== 
-        valid_pair_num = 0;
+        valid_pair_num = nnz(assoc_pts)/3;
         
-        %==== TODO: Assign values to A[] and b[] ====
+        %==== TODO: Assign values to A[] and b[] ====sum(permute(G, [2 1 3]) .* repmat(N_rs, [6 1 1]), 2);        
         %==== (Notice: the format of the desired 6-vector is: xi = [beta gamma alpha t_x t_y t_z]') ====
 
         % Write your code here...
@@ -35,9 +35,9 @@ function [tform valid_pair_num error] = getRigidTransform(new_pointcloud, ref_po
         G = zeros(3, 6, m*n);
         G(:, 4:6, :) = repmat(eye(3), [1 1 m*n]);
         G(2,1,:) = V_flat(3,:);
-        G(3,1,:) = V_flat(2,:);
+        G(3,1,:) = -V_flat(2,:);
         G(1,2,:) = -V_flat(3,:);
-        G(1,3,:) = -V_flat(2,:);
+        G(1,3,:) = V_flat(2,:);
         G(2,3,:) = -V_flat(1,:);
         G(3,2,:) = V_flat(1,:);
         
@@ -45,17 +45,18 @@ function [tform valid_pair_num error] = getRigidTransform(new_pointcloud, ref_po
 %         A_t = reshape(reshape(permute(A,[2,1,3]),3,[]).'*a,3,[]);
         
         N_rs = reshape( permute(ref_normals, [3 2 1]), 1, 3, m*n );
-        A_t = sum(permute(G, [2 1 3]) .* N_rs, 2);
-        
-        A_eff = sum(bsxfun(@times, A_t, permute(A_t,[2 1 3])), 3);
+        A_t = sum(permute(G, [2 1 3]) .* repmat(N_rs, [6 1 1]), 2);        
         
         V_flat_new = reshape( permute(assoc_pts,[3 2 1]), 3, [] ) ;
         
         del_pts = reshape( bsxfun(@plus, V_flat, -V_flat_new), 3,1,m*n);
         del_pts(V_flat_new==[0,0,0]')=0;
+        logic = V_flat_new(1,:)==0 & V_flat_new(2,:)==0 & V_flat_new(3,:)==0;
+        A_t( permute(repmat(logic, [6 1 1]),[1 3 2]) )=0;
         
-%         b_actual = bsxfun( @times, N_rs, del_pts );
         b_actual = sum( permute(N_rs,[2 1 3]) .* del_pts, 1);
+        
+        A_eff = sum(bsxfun(@times, A_t, permute(A_t,[2 1 3])), 3);
         b_eff = sum( bsxfun( @times, A_t, b_actual ), 3);
         %==== TODO: Solve for the 6-vector xi[] of rigid body transformation ====
 
@@ -81,6 +82,6 @@ function [tform valid_pair_num error] = getRigidTransform(new_pointcloud, ref_po
     end
     
     %==== Find RMS error of point-plane registration ====
-    error = sqrt(sum((A*xi - b).^2)/valid_pair_num);
+    error = 0; %sqrt(sum((A_t*xi - b_actual).^2)/valid_pair_num);
 end
         
