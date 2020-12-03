@@ -18,7 +18,7 @@ end
 
 %==== TEST: Debug ICP or point-based fusion (0: false, 1: true)====
 is_debug_icp = 0;
-is_debug_fusion = 1;
+is_debug_fusion = 0;
 is_eval = 0;
 
 %==== Set start time ====
@@ -27,7 +27,7 @@ tic;
 %==== Start recording new summary file ====
 delete summary.txt;
 diary off;
-diary on;
+diary on;https://open.spotify.com/track/3ZJBsQMWvesJ6w8UqalKVL
 
 %==== Set parameters ====
 sigma = 0.6; %the variance of the Gaussian weight used in fusion

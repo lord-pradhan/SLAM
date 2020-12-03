@@ -82,6 +82,7 @@ function [tform valid_pair_num error] = getRigidTransform(new_pointcloud, ref_po
     end
     
     %==== Find RMS error of point-plane registration ====
-    error = 0; %sqrt(sum((A_t*xi - b_actual).^2)/valid_pair_num);
+    A_rs = permute(A_t, [3 1 2]); b_rs = permute(b_actual, [3 2 1]);
+    error = sqrt(sum(( A_rs*xi - b_rs).^2)/valid_pair_num);
 end
         
